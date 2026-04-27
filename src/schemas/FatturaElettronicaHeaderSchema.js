@@ -1,8 +1,6 @@
 'use strict'
 
-const BaseJoi = require('joi')
-const JoiCountryExtension = require('joi-country-extension')
-const Joi = BaseJoi.extend(JoiCountryExtension)
+const Joi = require('../joi')
 
 const RegimiFiscaliValidi = [
   'RF01',
@@ -78,22 +76,19 @@ const DatiTrasmissioneSchema = Joi.object()
       .min(1)
       .max(10),
     FormatoTrasmissione: Joi.valid('FPA12', 'FPR12').required(),
-    CodiceDestinatario: Joi.alternatives()
+    CodiceDestinatario: Joi.string()
+      .alphanum()
       .when('FormatoTrasmissione', {
         is: 'FPA12',
-        then: Joi.string()
-          .alphanum()
-          .length(6),
-        otherwise: Joi.string()
-          .alphanum()
-          .length(7)
+        then: Joi.string().length(6),
+        otherwise: Joi.string().length(7)
       })
       .required(),
     ContattiTrasmittente: ContattiTrasmittenteSchema, // 1.1.5
-    PECDestinatario: Joi.alternatives().when('CodiceDestinatario', {
+    PECDestinatario: EmailSchema.when('CodiceDestinatario', {
       // FIXME
       is: '0000000',
-      then: EmailSchema.required(),
+      then: EmailSchema,
       otherwise: Joi.forbidden()
     })
   })
@@ -131,9 +126,8 @@ const DatiAnagraficiCedentePrestatoreSchema = Joi.object()
       .max(60), // 1.2.1.6
     DataIscrizioneAlbo: Joi.string()
       .isoDate()
-      .raw()
-      .notes('YYYY-MM-DD'), // 1.2.1.7
-    RegimeFiscale: Joi.valid(RegimiFiscaliValidi).required() // 1.2.1.8
+      .raw(), // 1.2.1.7
+    RegimeFiscale: Joi.valid(...RegimiFiscaliValidi).required() // 1.2.1.8
   })
   .required()
 

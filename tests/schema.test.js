@@ -4,7 +4,19 @@ const Joi = require('joi')
 const schema = require('../src/schemas/FatturaElettronicaSchema')
 const schemaHeader = require('../src/schemas/FatturaElettronicaHeaderSchema')
 
-describe.only('Schema', () => {
+Joi.validate = (value, targetSchema, options = {}) => {
+  const result = targetSchema.validate(value, {
+    ...options,
+    errors: { label: 'key' }
+  })
+
+  return {
+    ...result,
+    error: result.error || null
+  }
+}
+
+describe('Schema', () => {
   describe('FatturaElettronicaHeader', () => {
     test('should require FatturaElettronicaHeader', () => {
       const value = {}
@@ -310,8 +322,6 @@ describe.only('Schema', () => {
           }
 
           const result = Joi.validate(invoice, schemaHeader)
-
-          console.log(result.error)
 
           expect(result.error).toBeNull()
         })

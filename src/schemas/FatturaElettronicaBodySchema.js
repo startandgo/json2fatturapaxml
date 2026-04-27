@@ -1,8 +1,6 @@
 'use strict'
 
-const BaseJoi = require('joi-currency-code')(require('joi'))
-const JoiCountryExtension = require('joi-country-extension')
-const Joi = BaseJoi.extend(JoiCountryExtension)
+const Joi = require('../joi')
 
 const TipiDocumentiValidi = [
   'TD01',
@@ -128,7 +126,7 @@ const PrezzoSchema = Joi.string().regex(/^[-]?\d{1,13}(\.\d{2,6})$/)
 const AliquotaIVASchema = Joi.string().regex(/^\d{1,3}(\.\d{2,2})$/)
 
 const DatiRitenutaSchema = Joi.array().items(Joi.object().keys({
-  TipoRitenuta: Joi.valid(TipiRitenuteValide).required(),
+  TipoRitenuta: Joi.valid(...TipiRitenuteValide).required(),
   ImportoRitenuta: Joi.string()
     .regex(/^[-]?\d{1,12}(\.\d{2,6})$/)
     .required(), // min 4 max 15
@@ -150,7 +148,7 @@ const DatiBolloSchema = Joi.object().keys({
 
 const DatiCassaPrevidenzialeItemSchema = Joi.object()
   .keys({
-    TipoCassa: Joi.valid(TipiCassaValidi).required(),
+    TipoCassa: Joi.valid(...TipiCassaValidi).required(),
     AlCassa: Joi.string()
       .regex(/^\d{1,3}(\.\d{2,2})$/)
       .required(),
@@ -160,7 +158,7 @@ const DatiCassaPrevidenzialeItemSchema = Joi.object()
     ImponibileCassa: Joi.string().regex(/^[-]?\d{1,12}(\.\d{2,6})$/),
     AliquotaIVA: AliquotaIVASchema.required(),
     Ritenuta: Joi.valid('SI'),
-    Natura: Joi.valid(NaturaValidi),
+    Natura: Joi.valid(...NaturaValidi),
     RiferimentoAmministrazione: Joi.string()
       .min(1)
       .max(20)
@@ -203,7 +201,7 @@ const CausaleSchema = Joi.alternatives().try(
 const Art73Schema = Joi.valid('SI')
 
 const DatiGeneraliDocumentoSchema = Joi.object().keys({
-  TipoDocumento: Joi.valid(TipiDocumentiValidi).required(), // 2.1.1.1
+  TipoDocumento: Joi.valid(...TipiDocumentiValidi).required(), // 2.1.1.1
   Divisa: Joi.string()
     .currency()
     .required(), // 2.1.1.2
@@ -474,7 +472,7 @@ const DettaglioLineeItemSchema = Joi.object()
     PrezzoTotale: PrezzoSchema.required(), // 2.2.1.11
     AliquotaIVA: AliquotaIVASchema.required(), // 2.2.1.12
     Ritenuta: Joi.valid('SI'), // 2.2.1.13
-    Natura: Joi.valid(NaturaValidi), // 2.2.1.14
+    Natura: Joi.valid(...NaturaValidi), // 2.2.1.14
     RiferimentoAmministrazione: Joi.string()
       .min(1)
       .max(20), // 2.2.1.15
@@ -489,7 +487,7 @@ const DettaglioLineeSchema = Joi.alternatives().try(
 
 const DatiRiepilogoItemSchema = Joi.object().keys({
   AliquotaIVA: AliquotaIVASchema.required(), // 2.2.2.1
-  Natura: Joi.valid(NaturaValidi), // 2.2.2.2
+  Natura: Joi.valid(...NaturaValidi), // 2.2.2.2
   SpeseAccessorie: Joi.string().regex(/^[-]?\d{1,12}(\.\d{2,6})$/), // 2.2.2.3
   Arrotondamento: Joi.string().regex(/^[-]?\d{1,13}(\.\d{2,6})$/), // 2.2.2.4
   ImponibileImporto: PrezzoSchema.required(), // 2.2.2.5
@@ -526,7 +524,7 @@ const DettaglioPagamentoItemSchema = Joi.object()
     Beneficiario: Joi.string()
       .min(1)
       .max(200), // 2.4.2.1
-    ModalitaPagamento: Joi.valid(ModalitaPagamentoValidi).required(), // 2.4.2.2
+    ModalitaPagamento: Joi.valid(...ModalitaPagamentoValidi).required(), // 2.4.2.2
     DataRiferimentoTerminiPagamento: Joi.string()
       .isoDate()
       .raw(), // 2.4.2.3

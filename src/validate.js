@@ -1,6 +1,5 @@
 'use strict';
 
-const Joi = require('joi');
 const IT_lang = require('./joi-error-translations/IT');
 const schema = require('./schemas/FatturaElettronicaSchema');
 
@@ -13,11 +12,29 @@ const loadLanguage = (language = '') => {
   }
 };
 
+const mapLanguageToMessages = (language = {}) => {
+  return Object.keys(language).reduce((messages, type) => {
+    const rules = language[type] || {};
+
+    Object.keys(rules).forEach((rule) => {
+      const translated = rules[rule].replace(/{{\s*([^}]+)\s*}}/g, '{{#$1}}');
+      messages[`${type}.${rule}`] = `{{#label}} ${translated}`;
+    });
+
+    return messages;
+  }, {});
+};
+
 module.exports = (value, opt = {}) => {
   const options = {
     abortEarly: false,
-    language: loadLanguage(opt.language)
+    errors: { label: 'key' },
+    messages: mapLanguageToMessages(loadLanguage(opt.language))
   };
 
-  return Joi.validate(value, schema, options);
+  const result = schema.validate(value, options);
+  return {
+    ...result,
+    error: result.error || null
+  };
 };
